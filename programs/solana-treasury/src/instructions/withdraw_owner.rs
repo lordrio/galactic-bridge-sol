@@ -4,9 +4,11 @@ use anchor_lang::{
 };
 use std::mem::size_of;
 
+use crate::OWNER_PUBKEY;
+
 #[derive(Accounts)]
 pub struct WithdrawOwner<'info> {
-    #[account(mut, address = "8nZLXraZUARNmU3P8PKbJMS7NYs7aEyw6d1aQx1km3t2".parse::<Pubkey>().unwrap())]
+    #[account(mut, address = OWNER_PUBKEY.parse::<Pubkey>().unwrap())]
     pub owner: Signer<'info>,
 
     #[account(mut)]
@@ -95,7 +97,7 @@ pub struct WithdrawOwnerInterval {
 
 #[derive(Accounts)]
 pub struct SetWithdrawOwnerIntervalContext<'info> {
-    #[account(mut, address = "8nZLXraZUARNmU3P8PKbJMS7NYs7aEyw6d1aQx1km3t2".parse::<Pubkey>().unwrap())]
+    #[account(mut, address = OWNER_PUBKEY.parse::<Pubkey>().unwrap())]
     pub owner: Signer<'info>,
 
     #[account(

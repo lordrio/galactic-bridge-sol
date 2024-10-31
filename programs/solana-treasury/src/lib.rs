@@ -10,6 +10,8 @@ use instructions::*;
 
 declare_id!("AAJL4DeXnWBNRowWjvpkAgwtAACpz6NfaA1T2p8Hrpy");
 
+const OWNER_PUBKEY: &str = "aeWza7erizbMA3zNKW91ppftf8Rz8nyApRcumSSqebc";
+
 #[program]
 pub mod solana_treasury {
     use super::*;

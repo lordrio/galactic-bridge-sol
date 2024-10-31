@@ -128,11 +128,10 @@ describe("Treasury", async () => {
     const programKeypair = anchor.web3.Keypair.fromSecretKey(
       new Uint8Array(keypairBuffer)
     );
-    const programId = programKeypair.publicKey;
 
     const program = new anchor.Program(
       idl,
-      programId
+      provider
     ) as anchor.Program<SolanaTreasury>;
 
     // PDA for the Treasury Vault
