@@ -8,9 +8,12 @@ pub mod utils;
 pub mod instructions;
 use instructions::*;
 
-declare_id!("AAJL4DeXnWBNRowWjvpkAgwtAACpz6NfaA1T2p8Hrpy");
+declare_id!("2bPUnJYBDoYev1WoeKgAAwb6Mtnu2ExtZ5y25PAk6MSM");
 
-const OWNER_PUBKEY: &str = "aeWza7erizbMA3zNKW91ppftf8Rz8nyApRcumSSqebc";
+const SEED: &[u8] = "bton_mint_authority".as_bytes();
+
+const ADMIN_PUBKEY: Pubkey = pubkey!("aeWza7erizbMA3zNKW91ppftf8Rz8nyApRcumSSqebc");
+const TREASURY: Pubkey = pubkey!("CXfyChcCoee2DTUyAEyYAMiJKGoV3MNr7EoVWynJbobx");
 
 #[program]
 pub mod solana_treasury {
@@ -36,17 +39,14 @@ pub mod solana_treasury {
         Ok(())
     }
 
-    pub fn withdraw_owner(ctx: Context<WithdrawOwner>, transfer_amount: u64) -> Result<()> {
-        withdraw_owner::withdraw_owner(ctx, transfer_amount)?;
-
-        Ok(())
-    }
-
-    pub fn set_withdraw_owner_interval(
-        ctx: Context<SetWithdrawOwnerIntervalContext>,
-        data: WithdrawOwnerIntervalData,
+    // Create new token mint with PDA as mint authority
+    pub fn create_mint(
+        ctx: Context<CreateMint>,
+        uri: String,
+        name: String,
+        symbol: String,
     ) -> Result<()> {
-        withdraw_owner::set_withdraw_owner_interval(ctx, data)?;
+        create_mint::create_mint(ctx, uri, name, symbol)?;
 
         Ok(())
     }

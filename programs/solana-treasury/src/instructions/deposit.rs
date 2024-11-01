@@ -1,6 +1,10 @@
 use {
+    crate::SEED,
     anchor_lang::prelude::*,
-    anchor_lang::system_program::{transfer, Transfer},
+    anchor_spl::{
+        associated_token::AssociatedToken,
+        token::{burn, Burn, Mint, Token, TokenAccount},
+    },
 };
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -32,13 +36,20 @@ pub struct Deposit<'info> {
 
     #[account(
         mut,
-        seeds = [
-            b"treasury",
-        ],
+        associated_token::mint = bton_token_mint,
+        associated_token::authority = payer
+    )]
+    pub payer_token_account: Account<'info, TokenAccount>,
+
+    #[account(
+        mut,
+        seeds = [SEED],
         bump,
     )]
-    treasury: SystemAccount<'info>,
-    system_program: Program<'info, System>,
+    pub bton_token_mint: Account<'info, Mint>,
+
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 pub fn deposit(ctx: Context<Deposit>, data: DepositData) -> Result<()> {
@@ -51,21 +62,22 @@ pub fn deposit(ctx: Context<Deposit>, data: DepositData) -> Result<()> {
         return err!(DepositError::InvalidAmount);
     }
 
-    let sender_balance = ctx.accounts.payer.lamports();
-    if sender_balance < transfer_amount {
+    let balance = ctx.accounts.payer_token_account.amount;
+    if balance < transfer_amount {
         return err!(DepositError::PayerInsufficientAmount);
     }
 
-    transfer(
-        CpiContext::new(
-            ctx.accounts.system_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.payer.to_account_info(),
-                to: ctx.accounts.treasury.to_account_info(),
-            },
-        ),
-        transfer_amount,
-    )?;
+    // CPI Context
+    let cpi_ctx = CpiContext::new(
+        ctx.accounts.token_program.to_account_info(),
+        Burn {
+            mint: ctx.accounts.bton_token_mint.to_account_info(),
+            from: ctx.accounts.payer_token_account.to_account_info(),
+            authority: ctx.accounts.payer.to_account_info(),
+        },
+    );
+
+    burn(cpi_ctx, transfer_amount)?;
 
     emit!(DepositEvent {
         address_icp: data.address_icp,

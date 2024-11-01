@@ -13,10 +13,24 @@ export const withdrawWithValidSignatureAndData = async ({
   treasuryPDA,
   hashedSignaturePubkey,
   signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   const treasuryInfoInitial = await program.provider.connection.getAccountInfo(
     treasuryPDA
   );
+  let payerTokenAccountInitial = 0;
+  try {
+    payerTokenAccountInitial = (await program.provider.connection.getTokenAccountBalance(
+      playerTokenAccount
+    )).value.uiAmount;
+  } catch (error) {
+    console.log("error", error);
+  };
+
+  console.log("payerTokenAccountInitial", payerTokenAccountInitial);
+  console.log("playerTokenAccount", playerTokenAccount.toBase58());
   try {
     await program.methods
       .withdraw({
@@ -35,23 +49,31 @@ export const withdrawWithValidSignatureAndData = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkey,
         signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
-    const treasuryInfoAfter = await program.provider.connection.getAccountInfo(
-      treasuryPDA
-    );
-    const pdaLamports = new anchor.BN(treasuryInfoAfter.lamports);
-    const amount = new anchor.BN(coupon.amount.replace(/_/g, ""));
-    const pdaLamportsInitial = new anchor.BN(treasuryInfoInitial.lamports);
-    const pdaLamportsExpected = pdaLamportsInitial.sub(amount);
 
-    // Assert treasury PDA balance with informative message
+    let payerTokenAccountAfter = 0;
+    try {
+      payerTokenAccountAfter = await program.provider.connection.getTokenAccountBalance(
+          playerTokenAccount
+        ).value.uiAmount;
+    } catch (error) {
+      console.log("error", error);
+    }
+
+    console.log(
+      "payerTokenAccountAfter",
+      payerTokenAccountAfter - payerTokenAccountInitial
+    );
+
     assert(
-      pdaLamports.eq(pdaLamportsExpected),
-      `Treasury PDA balance (${pdaLamports}) doesn't reflect expected decrease after withdrawal (${pdaLamportsExpected})`
+      payerTokenAccountAfter - payerTokenAccountInitial > 0,
+      "Player token account balance should increase"
     );
   } catch (error) {
     assert(

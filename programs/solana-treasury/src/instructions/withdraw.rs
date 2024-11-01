@@ -1,12 +1,13 @@
 use std::str::FromStr;
 
-use anchor_lang::{
-    prelude::*,
-    system_program::{transfer, Transfer},
+use anchor_lang::prelude::*;
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{mint_to, Mint, MintTo, Token, TokenAccount},
 };
 
-use crate::storage;
-use crate::utils;
+use crate::{storage, TREASURY};
+use crate::{utils, SEED};
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct Coupon {
@@ -51,15 +52,6 @@ pub struct Withdraw<'info> {
     /// CHECK: this is safe because hashed message and signature have been verified
     pub receiver: AccountInfo<'info>,
 
-    #[account(
-        mut,
-        seeds = [
-            b"treasury",
-        ],
-        bump,
-    )]
-    treasury: SystemAccount<'info>,
-
     #[account(mut)]
     /// CHECK: this is safe because hash of signature is unique and verified
     pub hashed_signature_pubkey: AccountInfo<'info>,
@@ -73,6 +65,29 @@ pub struct Withdraw<'info> {
     )]
     pub signature_pda: SystemAccount<'info>,
 
+    #[account(
+        init_if_needed,
+        payer = payer,
+        associated_token::mint = bton_token_mint,
+        associated_token::authority = payer
+    )]
+    pub payer_token_account: Account<'info, TokenAccount>,
+
+    #[account(
+        mut,
+        address = TREASURY,
+    )]
+    pub treasury_token_account: Account<'info, TokenAccount>,
+
+    #[account(
+        mut,
+        seeds = [SEED],
+        bump,
+    )]
+    pub bton_token_mint: Account<'info, Mint>,
+
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
 
@@ -91,11 +106,6 @@ pub fn withdraw(ctx: Context<Withdraw>, data: WithdrawData, eth_pubkey: [u8; 64]
     let transfer_amount = transfer_amount_string
         .parse::<u64>()
         .unwrap_or_else(|_| panic!("Invalid amount format: {}", transfer_amount_string));
-
-    let treasury_balance = ctx.accounts.treasury.lamports();
-    if treasury_balance < transfer_amount {
-        return err!(WithdrawError::TreasuryInsufficientAmount);
-    }
 
     let timestamp =
         u64::from_str(&data.coupon.burn_timestamp).expect("Could not convert timestamp to u64");
@@ -117,21 +127,45 @@ pub fn withdraw(ctx: Context<Withdraw>, data: WithdrawData, eth_pubkey: [u8; 64]
         data.recovery_id,
     )?;
 
+    // seems like to be for creating account
     storage::signature_pda_check(&ctx, &data)?;
 
-    // PDA signer seeds
-    let signer_seeds: &[&[&[u8]]] = &[&[b"treasury", &[ctx.bumps.treasury]]];
+    // PDA seeds and bump to "sign" for CPI
+    let seeds = SEED;
+    let bump = ctx.bumps.bton_token_mint;
+    let signer: &[&[&[u8]]] = &[&[seeds, &[bump]]];
 
-    transfer(
-        CpiContext::new_with_signer(
-            ctx.accounts.system_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.treasury.to_account_info(),
-                to: ctx.accounts.receiver.to_account_info(),
-            },
-            signer_seeds,
-        ),
-        transfer_amount,
-    )?;
+    let cpi_ctx_tax = CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        MintTo {
+            mint: ctx.accounts.bton_token_mint.to_account_info(),
+            to: ctx.accounts.treasury_token_account.to_account_info(),
+            authority: ctx.accounts.bton_token_mint.to_account_info(),
+        },
+        signer,
+    );
+
+    // 5% tax
+    let amount_tax = transfer_amount
+        .checked_mul(5u64.checked_div(100u64).unwrap())
+        .unwrap();
+
+    mint_to(cpi_ctx_tax, amount_tax)?;
+
+    // CPI Context
+    let cpi_ctx = CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        MintTo {
+            mint: ctx.accounts.bton_token_mint.to_account_info(),
+            to: ctx.accounts.payer_token_account.to_account_info(),
+            authority: ctx.accounts.bton_token_mint.to_account_info(),
+        },
+        signer,
+    );
+
+    // Mint 1 token, accounting for decimals of mint
+    let amount = transfer_amount - amount_tax;
+
+    mint_to(cpi_ctx, amount)?;
     Ok(())
 }

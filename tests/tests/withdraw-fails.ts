@@ -45,6 +45,7 @@ export const withdrawFailsDueToInvalidCoupon = async ({
       .rpc();
     // No assertion here, as an error is expected
   } catch (error) {
+    console.log("error", error);
     const code = error.error.errorCode.code;
 
     assert(

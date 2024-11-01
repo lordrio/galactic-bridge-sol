@@ -11,7 +11,7 @@ solana_treasury = "AAJL4DeXnWBNRowWjvpkAgwtAACpz6NfaA1T2p8Hrpy"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/riolis/.config/solana/id.json"
 
 [scripts]
