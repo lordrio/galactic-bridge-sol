@@ -47,53 +47,53 @@ describe("Treasury", async () => {
     await deposit(treasuryMeta);
   });
 
-  // it("Fails to withdraw due to keys don't match", async () => {
-  //   await withdrawFailsDueToKeysDontMatch(treasuryMeta);
-  // });
+  it("Fails to withdraw due to keys don't match", async () => {
+    await withdrawFailsDueToKeysDontMatch(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to treasury doesn't match", async () => {
-  //   await withdrawFailsDueToTreasuryMismatch(treasuryMeta);
-  // });
+  it("Fails to withdraw due to treasury doesn't match", async () => {
+    await withdrawFailsDueToTreasuryMismatch(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to invalid coupon", async () => {
-  //   await withdrawFailsDueToInvalidCoupon(treasuryMeta);
-  // });
+  it("Fails to withdraw due to invalid coupon", async () => {
+    await withdrawFailsDueToInvalidCoupon(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to invalid signature", async () => {
-  //   withdrawFailsDueToInvalidSignature(treasuryMeta);
-  // });
+  it("Fails to withdraw due to invalid signature", async () => {
+    withdrawFailsDueToInvalidSignature(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to invalid coupon hash", async () => {
-  //   await withdrawFailsDueToInvalidCouponHash(treasuryMeta);
-  // });
+  it("Fails to withdraw due to invalid coupon hash", async () => {
+    await withdrawFailsDueToInvalidCouponHash(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to invalid signature pubkey", async () => {
-  //   await withdrawFailsDueToInvalidSignaturePubkey(treasuryMeta);
-  // });
+  it("Fails to withdraw due to invalid signature pubkey", async () => {
+    await withdrawFailsDueToInvalidSignaturePubkey(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to invalid signature pda", async () => {
-  //   await withdrawFailsDueToInvalidSignaturePda(treasuryMeta);
-  // });
+  it("Fails to withdraw due to invalid signature pda", async () => {
+    await withdrawFailsDueToInvalidSignaturePda(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to invalid signature pubkey and pda", async () => {
-  //   await withdrawFailsDueToInvalidSignaturePubkeyAndPda(treasuryMeta);
-  // });
+  it("Fails to withdraw due to invalid signature pubkey and pda", async () => {
+    await withdrawFailsDueToInvalidSignaturePubkeyAndPda(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to invalid recovery id", async () => {
-  //   await withdrawFailsDueToIncorrectRecoveryId(treasuryMeta);
-  // });
+  it("Fails to withdraw due to invalid recovery id", async () => {
+    await withdrawFailsDueToIncorrectRecoveryId(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to invalid receiver", async () => {
-  //   await withdrawFailsDueToReceiverMismatch(treasuryMeta);
-  // });
+  it("Fails to withdraw due to invalid receiver", async () => {
+    await withdrawFailsDueToReceiverMismatch(treasuryMeta);
+  });
 
-  // it("Withdraws with valid signature and data", async () => {
-  //   await withdrawWithValidSignatureAndData(treasuryMeta);
-  // });
+  it("Withdraws with valid signature and data", async () => {
+    await withdrawWithValidSignatureAndData(treasuryMeta);
+  });
 
-  // it("Fails to withdraw due to used signature", async () => {
-  //   await withdrawFailsDueToUsedSignature(treasuryMeta);
-  // });
+  it("Fails to withdraw due to used signature", async () => {
+    await withdrawFailsDueToUsedSignature(treasuryMeta);
+  });
 
 
   const initializeSolanaTreasuryMeta = async () => {
