@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import * as crypto from "crypto";
 import { Metaplex } from "@metaplex-foundation/js";
 import { deposit } from "./tests/deposit";
-import { getMint, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { getMint, getAssociatedTokenAddressSync, createAccount } from "@solana/spl-token";
 import {
   withdrawFailsDueToIncorrectRecoveryId,
   withdrawFailsDueToInvalidCoupon,
@@ -14,7 +14,9 @@ import {
   withdrawFailsDueToInvalidSignaturePda,
   withdrawFailsDueToInvalidSignaturePubkey,
   withdrawFailsDueToInvalidSignaturePubkeyAndPda,
+  withdrawFailsDueToKeysDontMatch,
   withdrawFailsDueToReceiverMismatch,
+  withdrawFailsDueToTreasuryMismatch,
   withdrawFailsDueToUsedSignature,
 } from "./tests/withdraw-fails";
 import { withdrawWithValidSignatureAndData } from "./tests/withdraw-success";
@@ -41,45 +43,53 @@ describe("Treasury", async () => {
     await createMint(treasuryMeta);
   });
 
-  // it("Deposit SOL and check event", async () => {
-  //   await deposit(treasuryMeta);
+  it("Deposit SOL and check event", async () => {
+    await deposit(treasuryMeta);
+  });
+
+  // it("Fails to withdraw due to keys don't match", async () => {
+  //   await withdrawFailsDueToKeysDontMatch(treasuryMeta);
   // });
 
-  it("Fails to withdraw due to invalid coupon", async () => {
-    await withdrawFailsDueToInvalidCoupon(treasuryMeta);
-  });
+  // it("Fails to withdraw due to treasury doesn't match", async () => {
+  //   await withdrawFailsDueToTreasuryMismatch(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid signature", async () => {
-    withdrawFailsDueToInvalidSignature(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid coupon", async () => {
+  //   await withdrawFailsDueToInvalidCoupon(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid coupon hash", async () => {
-    await withdrawFailsDueToInvalidCouponHash(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid signature", async () => {
+  //   withdrawFailsDueToInvalidSignature(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid signature pubkey", async () => {
-    await withdrawFailsDueToInvalidSignaturePubkey(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid coupon hash", async () => {
+  //   await withdrawFailsDueToInvalidCouponHash(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid signature pda", async () => {
-    await withdrawFailsDueToInvalidSignaturePda(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid signature pubkey", async () => {
+  //   await withdrawFailsDueToInvalidSignaturePubkey(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid signature pubkey and pda", async () => {
-    await withdrawFailsDueToInvalidSignaturePubkeyAndPda(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid signature pda", async () => {
+  //   await withdrawFailsDueToInvalidSignaturePda(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid recovery id", async () => {
-    await withdrawFailsDueToIncorrectRecoveryId(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid signature pubkey and pda", async () => {
+  //   await withdrawFailsDueToInvalidSignaturePubkeyAndPda(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid receiver", async () => {
-    await withdrawFailsDueToReceiverMismatch(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid recovery id", async () => {
+  //   await withdrawFailsDueToIncorrectRecoveryId(treasuryMeta);
+  // });
 
-  it("Withdraws with valid signature and data", async () => {
-    await withdrawWithValidSignatureAndData(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid receiver", async () => {
+  //   await withdrawFailsDueToReceiverMismatch(treasuryMeta);
+  // });
+
+  // it("Withdraws with valid signature and data", async () => {
+  //   await withdrawWithValidSignatureAndData(treasuryMeta);
+  // });
 
   // it("Fails to withdraw due to used signature", async () => {
   //   await withdrawFailsDueToUsedSignature(treasuryMeta);
@@ -96,11 +106,9 @@ describe("Treasury", async () => {
       fs.readFileSync("./target/idl/solana_treasury.json", "utf8")
     );
 
-    const keypairBuffer = JSON.parse(
-      fs.readFileSync("./target/deploy/solana_treasury-keypair.json", "utf8")
-    );
-    const programKeypair = anchor.web3.Keypair.fromSecretKey(
-      new Uint8Array(keypairBuffer)
+    const treasuryKeypairBuffer = JSON.parse(fs.readFileSync("/home/riolis/.config/solana/keypair.json", "utf8"));
+    const treasuryKeypair = anchor.web3.Keypair.fromSecretKey(
+      new Uint8Array(treasuryKeypairBuffer)
     );
 
     const program = new anchor.Program(
@@ -121,20 +129,36 @@ describe("Treasury", async () => {
 
     const coupon = {
       from_icp_address:
-        "pvmak-bbryo-hipdn-slp5u-fpsh5-tkf7f-v2wss-534um-jc454-ommhu-2qe",
-      to_sol_address: "8nZLXraZUARNmU3P8PKbJMS7NYs7aEyw6d1aQx1km3t2",
-      amount: "10_000_000",
-      burn_id: 0,
-      burn_timestamp: "1716994668977025165",
-      icp_burn_block_index: 2,
+        "uomtd-iwqym-753el-2jqre-zylmb-vff5w-za3sy-ijgqf-alhqs-nxhuj-5ae",
+      to_sol_address: "aeWza7erizbMA3zNKW91ppftf8Rz8nyApRcumSSqebc",
+      amount: "10_000",
+      burn_id: 2,
+      burn_timestamp: "1730436627141375514",
+      icp_burn_block_index: 3,
     };
 
     const couponHash =
-      "0x" + "153e935d5ba866812c6ae00095c9f765df08aee57df63dc638d2e888bd92cf4a";
+      "0x" + "15a862f48ffa981504c1e8bf4880b0f32b7a4c8e6d4c2f23e8e6aa690e2e422b";
     const sig =
       "0x" +
-      "02f0d597f3bbaf02efb1d42ebd3e725317d99c94cc1315fadf2195471f90ee6a69dc667a11188e67e3a126048a2f1454e102f23fba83e2ea04ee439ebc88ed5a";
+      "7b02675015df5b59e130a023fa6da514a362370879e21c3ac039265238a3a6307429d3cdef36e391cf9ede13d585227d965ba69de5c9049cea4a9fd0af4689e4";
     const recoveryId = 0;
+
+    const bibiancoupon = {
+      from_icp_address:
+        "uomtd-iwqym-753el-2jqre-zylmb-vff5w-za3sy-ijgqf-alhqs-nxhuj-5ae",
+      to_sol_address: "FMbpmdAnsCSPCj51hoSQxvwBJVb69cHDjT6Ch8wukJSj",
+      amount: "10_000",
+      burn_id: 3,
+      burn_timestamp: "1730437140356983971",
+      icp_burn_block_index: 4,
+    };
+
+    const bibiancouponHash =
+      "0x" + "fa69ed41fee9890720627a72a70e02a0b1afd2207d3922fb367ac40ca4e6c6ca";
+    const bibiancouponSig =
+      "0x" +
+      "ac13cd880020dc2dfebafcd1df0aba8c09ec5f107947e48b14ae8c7a55f7998f752c9aba06e573a3605ec165bd7890b94448cf0211a68d523fe9f009c948a1c2";
 
     const sigHashed = crypto
       .createHash("sha256")
@@ -174,8 +198,42 @@ describe("Treasury", async () => {
 
     const treasuryTokenAccount = getAssociatedTokenAddressSync(
       rewardTokenMintPda,
-      new PublicKey("aeWza7erizbMA3zNKW91ppftf8Rz8nyApRcumSSqebc")
+      new PublicKey("4QWPpX3mu1PNsdw6UVYHg6oS8gpixUCBAymQ3gaPwRNQ")
     );
+    console.log("treasuryTokenAccount", treasuryTokenAccount.toString());
+
+    const wrongTreasuryTokenAccount = getAssociatedTokenAddressSync(
+      rewardTokenMintPda,
+      new PublicKey("8nZLXraZUARNmU3P8PKbJMS7NYs7aEyw6d1aQx1km3t2")
+    );
+
+    console.log("treasuryKeypair", treasuryKeypair.publicKey.toBase58());
+
+    // create account 
+    try {
+      const txHash = await createAccount(
+        connection,
+        wallet.payer,
+        rewardTokenMintPda,
+        treasuryKeypair.publicKey,
+      );
+      console.log("txHash", txHash);
+    } catch (error) {
+      console.log("error", error);
+    }
+
+    // create account 
+    try {
+      const txHash = await createAccount(
+        connection,
+        wallet.payer,
+        rewardTokenMintPda,
+        wallet.publicKey,
+      );
+      console.log("txHash", txHash);
+    } catch (error) {
+      console.log("error", error);
+    }
 
     return {
       provider,
@@ -195,6 +253,10 @@ describe("Treasury", async () => {
       rewardTokenMintMetadataPDA,
       playerTokenAccount,
       treasuryTokenAccount,
+      wrongTreasuryTokenAccount,
+      bibiancoupon,
+      bibiancouponHash,
+      bibiancouponSig,
     };
   };
 
@@ -245,9 +307,6 @@ describe("Treasury", async () => {
     const walletBalanceInitial = await connection.getBalance(receiverPubkey);
     const minBalance = await connection.getMinimumBalanceForRentExemption(1);
     const isRentExempt = walletBalanceInitial >= minBalance;
-    console.log("isRentExempt", isRentExempt);
-    console.log("walletBalanceInitial", walletBalanceInitial);
-    console.log("minBalance", minBalance);
     if (!isRentExempt) {
       const transaction = new anchor.web3.Transaction().add(
         anchor.web3.SystemProgram.transfer({

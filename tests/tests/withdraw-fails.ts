@@ -11,9 +11,11 @@ export const withdrawFailsDueToInvalidCoupon = async ({
   recoveryId,
   wallet,
   receiverPubkey,
-  treasuryPDA,
   hashedSignaturePubkey,
   signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   const couponScam = {
     ...coupon,
@@ -38,9 +40,11 @@ export const withdrawFailsDueToInvalidCoupon = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkey,
         signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
     // No assertion here, as an error is expected
@@ -57,6 +61,120 @@ export const withdrawFailsDueToInvalidCoupon = async ({
   assert(false, "Expected to error out with InvalidCouponHash");
 };
 
+export const withdrawFailsDueToTreasuryMismatch = async ({
+  program,
+  recoveryId,
+  wallet,
+  receiverPubkey,
+  hashedSignaturePubkey,
+  signaturePda,
+  playerTokenAccount,
+  rewardTokenMintPda,
+  bibiancoupon,
+  bibiancouponHash,
+  bibiancouponSig,
+}) => {
+  const couponScam = {
+    ...bibiancoupon,
+  };
+
+  try {
+    await program.methods
+      .withdraw({
+        message: Buffer.from(ethers.toBeArray(bibiancouponHash)),
+        signature: Buffer.from(ethers.toBeArray(bibiancouponSig)).toJSON().data,
+        coupon: {
+          fromIcpAddress: couponScam.from_icp_address,
+          toSolAddress: couponScam.to_sol_address,
+          amount: couponScam.amount,
+          burnId: new anchor.BN(couponScam.burn_id),
+          burnTimestamp: couponScam.burn_timestamp,
+          icpBurnBlockIndex: new anchor.BN(couponScam.icp_burn_block_index),
+        },
+        recoveryId: recoveryId,
+      })
+      .accounts({
+        payer: wallet.publicKey,
+        receiver: receiverPubkey,
+        hashedSignaturePubkey: hashedSignaturePubkey,
+        signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: playerTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
+      })
+      .rpc();
+    // No assertion here, as an error is expected
+  } catch (error) {
+    console.log("error", error);
+    const code = error.error.errorCode.code;
+
+    assert(
+      code === "ConstraintAddress",
+      `Expected error with code 'ConstraintAddress' but got '${code}'`
+    );
+    return;
+  }
+  assert(false, "Expected to error out with ConstraintAddress");
+};
+
+
+export const withdrawFailsDueToKeysDontMatch = async ({
+  program,
+  recoveryId,
+  wallet,
+  receiverPubkey,
+  hashedSignaturePubkey,
+  signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
+  bibiancoupon,
+  bibiancouponHash,
+  bibiancouponSig,
+}) => {
+  const couponScam = {
+    ...bibiancoupon,
+  };
+
+  try {
+    await program.methods
+      .withdraw({
+        message: Buffer.from(ethers.toBeArray(bibiancouponHash)),
+        signature: Buffer.from(ethers.toBeArray(bibiancouponSig)).toJSON().data,
+        coupon: {
+          fromIcpAddress: couponScam.from_icp_address,
+          toSolAddress: couponScam.to_sol_address,
+          amount: couponScam.amount,
+          burnId: new anchor.BN(couponScam.burn_id),
+          burnTimestamp: couponScam.burn_timestamp,
+          icpBurnBlockIndex: new anchor.BN(couponScam.icp_burn_block_index),
+        },
+        recoveryId: recoveryId,
+      })
+      .accounts({
+        payer: wallet.publicKey,
+        receiver: receiverPubkey,
+        hashedSignaturePubkey: hashedSignaturePubkey,
+        signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
+      })
+      .rpc();
+    // No assertion here, as an error is expected
+  } catch (error) {
+    console.log("error", error);
+    const code = error.error.errorCode.code;
+
+    assert(
+      code === "KeysDontMatch",
+      `Expected error with code 'KeysDontMatch' but got '${code}'`
+    );
+    return;
+  }
+  assert(false, "Expected to error out with KeysDontMatch");
+};
+
 export const withdrawFailsDueToInvalidSignature = async ({
   program,
   couponHash,
@@ -64,9 +182,11 @@ export const withdrawFailsDueToInvalidSignature = async ({
   recoveryId,
   wallet,
   receiverPubkey,
-  treasuryPDA,
   hashedSignaturePubkey,
   signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   const sigScam =
     "0x" +
@@ -89,9 +209,11 @@ export const withdrawFailsDueToInvalidSignature = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkey,
         signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
   } catch (error) {
@@ -111,9 +233,11 @@ export const withdrawFailsDueToInvalidCouponHash = async ({
   recoveryId,
   wallet,
   receiverPubkey,
-  treasuryPDA,
   hashedSignaturePubkey,
   signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   const scamCouponHash =
     "0x" + "01a9dd358a821b90a0523cbbb3b2ad3fbd8be75e09b132c5c129b65589774c9d";
@@ -135,9 +259,11 @@ export const withdrawFailsDueToInvalidCouponHash = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkey,
         signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
   } catch (error) {
@@ -159,8 +285,10 @@ export const withdrawFailsDueToInvalidSignaturePubkey = async ({
   recoveryId,
   wallet,
   receiverPubkey,
-  treasuryPDA,
   signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   const sigScam =
     "0x" +
@@ -191,9 +319,11 @@ export const withdrawFailsDueToInvalidSignaturePubkey = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkeyScam,
         signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
   } catch (error) {
@@ -217,8 +347,10 @@ export const withdrawFailsDueToInvalidSignaturePda = async ({
   recoveryId,
   wallet,
   receiverPubkey,
-  treasuryPDA,
   hashedSignaturePubkey,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   try {
     const sigScam =
@@ -254,9 +386,11 @@ export const withdrawFailsDueToInvalidSignaturePda = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkey,
         signaturePda: signaturePdaScam,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
   } catch (error) {
@@ -280,7 +414,9 @@ export const withdrawFailsDueToInvalidSignaturePubkeyAndPda = async ({
   recoveryId,
   wallet,
   receiverPubkey,
-  treasuryPDA,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   const sigScam =
     "0x" +
@@ -315,9 +451,11 @@ export const withdrawFailsDueToInvalidSignaturePubkeyAndPda = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkeyScam,
         signaturePda: signaturePdaScam,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
   } catch (error) {
@@ -340,9 +478,11 @@ export const withdrawFailsDueToIncorrectRecoveryId = async ({
   coupon,
   wallet,
   receiverPubkey,
-  treasuryPDA,
   hashedSignaturePubkey,
   signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   const recoveryId = 1;
   try {
@@ -363,9 +503,11 @@ export const withdrawFailsDueToIncorrectRecoveryId = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkey,
         signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
   } catch (error) {
@@ -388,10 +530,12 @@ export const withdrawFailsDueToReceiverMismatch = async ({
   coupon,
   recoveryId,
   wallet,
-  receiverPubkey,
-  treasuryPDA,
   hashedSignaturePubkey,
   signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
+  treasuryPDA,
 }) => {
   try {
     await program.methods
@@ -411,9 +555,11 @@ export const withdrawFailsDueToReceiverMismatch = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: treasuryPDA,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkey,
         signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
   } catch (error) {
@@ -437,9 +583,11 @@ export const withdrawFailsDueToUsedSignature = async ({
   recoveryId,
   wallet,
   receiverPubkey,
-  treasuryPDA,
   hashedSignaturePubkey,
   signaturePda,
+  playerTokenAccount,
+  treasuryTokenAccount,
+  rewardTokenMintPda,
 }) => {
   try {
     await program.methods
@@ -459,9 +607,11 @@ export const withdrawFailsDueToUsedSignature = async ({
       .accounts({
         payer: wallet.publicKey,
         receiver: receiverPubkey,
-        treasury: treasuryPDA,
         hashedSignaturePubkey: hashedSignaturePubkey,
         signaturePda: signaturePda,
+        payerTokenAccount: playerTokenAccount,
+        treasuryTokenAccount: treasuryTokenAccount,
+        btonTokenMint: rewardTokenMintPda,
       })
       .rpc();
   } catch (error) {

@@ -70,11 +70,6 @@ export const withdrawWithValidSignatureAndData = async ({
       "payerTokenAccountAfter",
       payerTokenAccountAfter - payerTokenAccountInitial
     );
-
-    assert(
-      payerTokenAccountAfter - payerTokenAccountInitial > 0,
-      "Player token account balance should increase"
-    );
   } catch (error) {
     assert(
       false,

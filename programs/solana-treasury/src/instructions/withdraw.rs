@@ -93,6 +93,12 @@ pub struct Withdraw<'info> {
 
 pub fn withdraw(ctx: Context<Withdraw>, data: WithdrawData, eth_pubkey: [u8; 64]) -> Result<()> {
     let addr = Pubkey::from_str(&data.coupon.to_sol_address).expect("Invalid Coupon Address");
+
+    // Add this check to ensure token account belongs to receiver
+    if ctx.accounts.payer_token_account.owner != addr {
+        return err!(WithdrawError::KeysDontMatch);
+    }
+
     if ctx.accounts.receiver.key() != addr {
         return err!(WithdrawError::ReceiverMismatch);
     }
