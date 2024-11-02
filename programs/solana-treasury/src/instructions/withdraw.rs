@@ -152,9 +152,7 @@ pub fn withdraw(ctx: Context<Withdraw>, data: WithdrawData, eth_pubkey: [u8; 64]
     );
 
     // 5% tax
-    let amount_tax = transfer_amount
-        .checked_mul(5u64.checked_div(100u64).unwrap())
-        .unwrap();
+    let amount_tax = (transfer_amount as f64 * 0.05).ceil() as u64;
 
     mint_to(cpi_ctx_tax, amount_tax)?;
 

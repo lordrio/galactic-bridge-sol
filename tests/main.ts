@@ -106,9 +106,8 @@ describe("Treasury", async () => {
       fs.readFileSync("./target/idl/solana_treasury.json", "utf8")
     );
 
-    const treasuryKeypairBuffer = JSON.parse(fs.readFileSync("/home/riolis/.config/solana/keypair.json", "utf8"));
-    const treasuryKeypair = anchor.web3.Keypair.fromSecretKey(
-      new Uint8Array(treasuryKeypairBuffer)
+    const treasuryPubkey = new PublicKey(
+      "FB4zo7Ldu2BuYxrHKy9WXjYDC5FcpnDMz9sGQRmLNQWg"
     );
 
     const program = new anchor.Program(
@@ -198,7 +197,7 @@ describe("Treasury", async () => {
 
     const treasuryTokenAccount = getAssociatedTokenAddressSync(
       rewardTokenMintPda,
-      new PublicKey("4QWPpX3mu1PNsdw6UVYHg6oS8gpixUCBAymQ3gaPwRNQ")
+      treasuryPubkey
     );
     console.log("treasuryTokenAccount", treasuryTokenAccount.toString());
 
@@ -207,7 +206,7 @@ describe("Treasury", async () => {
       new PublicKey("8nZLXraZUARNmU3P8PKbJMS7NYs7aEyw6d1aQx1km3t2")
     );
 
-    console.log("treasuryKeypair", treasuryKeypair.publicKey.toBase58());
+    console.log("treasuryKeypair", treasuryPubkey.toBase58());
 
     // create account 
     try {
@@ -215,7 +214,7 @@ describe("Treasury", async () => {
         connection,
         wallet.payer,
         rewardTokenMintPda,
-        treasuryKeypair.publicKey,
+        treasuryPubkey,
       );
       console.log("txHash", txHash);
     } catch (error) {
@@ -273,7 +272,7 @@ describe("Treasury", async () => {
 
     // token metadata
     const metadata = {
-      uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json",
+      uri: "https://bafybeiar3hjdqbmxfexe3meibkqu2h7wwqhj7llkc2cta7vtw6fgql55ia.ipfs.w3s.link/ipfs/bafybeiar3hjdqbmxfexe3meibkqu2h7wwqhj7llkc2cta7vtw6fgql55ia/bton-json.json",
       name: "Solana BTON",
       symbol: "BTON",
     };

@@ -8,12 +8,12 @@ pub mod utils;
 pub mod instructions;
 use instructions::*;
 
-declare_id!("BtXkwL2S2aJi9Uu3XvUGVrhCLXzvreQg5PW8xFRd4PFw");
+declare_id!("8eaZqKD2CDYakH5qW1kPT7HsbeWyn2f7AXbTWZYLSsSN");
 
 const SEED: &[u8] = "bton_mint_authority".as_bytes();
 
 const ADMIN_PUBKEY: Pubkey = pubkey!("aeWza7erizbMA3zNKW91ppftf8Rz8nyApRcumSSqebc");
-const TREASURY: Pubkey = pubkey!("39KJAvNd2hWjX9wCVqLjJNUhc9XAv5WHC24zBJ3Vi8B6");
+const TREASURY: Pubkey = pubkey!("GS2LjC425VRixxyXChXEKNaqDgLMoT1KjScoYdTuanSH");
 
 #[program]
 pub mod solana_treasury {
