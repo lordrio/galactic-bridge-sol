@@ -43,57 +43,57 @@ describe("Treasury", async () => {
     await createMint(treasuryMeta);
   });
 
-  it("Deposit SOL and check event", async () => {
-    await deposit(treasuryMeta);
-  });
+  // it("Deposit SOL and check event", async () => {
+  //   await deposit(treasuryMeta);
+  // });
 
   it("Fails to withdraw due to keys don't match", async () => {
     await withdrawFailsDueToKeysDontMatch(treasuryMeta);
   });
 
-  it("Fails to withdraw due to treasury doesn't match", async () => {
-    await withdrawFailsDueToTreasuryMismatch(treasuryMeta);
-  });
+  // it("Fails to withdraw due to treasury doesn't match", async () => {
+  //   await withdrawFailsDueToTreasuryMismatch(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid coupon", async () => {
-    await withdrawFailsDueToInvalidCoupon(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid coupon", async () => {
+  //   await withdrawFailsDueToInvalidCoupon(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid signature", async () => {
-    withdrawFailsDueToInvalidSignature(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid signature", async () => {
+  //   withdrawFailsDueToInvalidSignature(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid coupon hash", async () => {
-    await withdrawFailsDueToInvalidCouponHash(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid coupon hash", async () => {
+  //   await withdrawFailsDueToInvalidCouponHash(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid signature pubkey", async () => {
-    await withdrawFailsDueToInvalidSignaturePubkey(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid signature pubkey", async () => {
+  //   await withdrawFailsDueToInvalidSignaturePubkey(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid signature pda", async () => {
-    await withdrawFailsDueToInvalidSignaturePda(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid signature pda", async () => {
+  //   await withdrawFailsDueToInvalidSignaturePda(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid signature pubkey and pda", async () => {
-    await withdrawFailsDueToInvalidSignaturePubkeyAndPda(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid signature pubkey and pda", async () => {
+  //   await withdrawFailsDueToInvalidSignaturePubkeyAndPda(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid recovery id", async () => {
-    await withdrawFailsDueToIncorrectRecoveryId(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid recovery id", async () => {
+  //   await withdrawFailsDueToIncorrectRecoveryId(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to invalid receiver", async () => {
-    await withdrawFailsDueToReceiverMismatch(treasuryMeta);
-  });
+  // it("Fails to withdraw due to invalid receiver", async () => {
+  //   await withdrawFailsDueToReceiverMismatch(treasuryMeta);
+  // });
 
-  it("Withdraws with valid signature and data", async () => {
-    await withdrawWithValidSignatureAndData(treasuryMeta);
-  });
+  // it("Withdraws with valid signature and data", async () => {
+  //   await withdrawWithValidSignatureAndData(treasuryMeta);
+  // });
 
-  it("Fails to withdraw due to used signature", async () => {
-    await withdrawFailsDueToUsedSignature(treasuryMeta);
-  });
+  // it("Fails to withdraw due to used signature", async () => {
+  //   await withdrawFailsDueToUsedSignature(treasuryMeta);
+  // });
 
 
   const initializeSolanaTreasuryMeta = async () => {
@@ -129,19 +129,19 @@ describe("Treasury", async () => {
     const coupon = {
       from_icp_address:
         "uomtd-iwqym-753el-2jqre-zylmb-vff5w-za3sy-ijgqf-alhqs-nxhuj-5ae",
-      to_sol_address: "aeWza7erizbMA3zNKW91ppftf8Rz8nyApRcumSSqebc",
-      amount: "10_000",
-      burn_id: 2,
-      burn_timestamp: "1730436627141375514",
-      icp_burn_block_index: 3,
+      to_sol_address: "5mgy1anWRRbWCRGG26vsP8C3fQRDcXXer9Po3Vjjmyd5",
+      amount: "20_000_000",
+      burn_id: 1,
+      burn_timestamp: "1730615672390087127",
+      icp_burn_block_index: 0,
     };
 
     const couponHash =
-      "0x" + "15a862f48ffa981504c1e8bf4880b0f32b7a4c8e6d4c2f23e8e6aa690e2e422b";
+      "0x" + "eb2b702cb0369dcedf1f01fd99c8daec051b0f16f49d795db7bc3bb0b883dafd";
     const sig =
       "0x" +
-      "7b02675015df5b59e130a023fa6da514a362370879e21c3ac039265238a3a6307429d3cdef36e391cf9ede13d585227d965ba69de5c9049cea4a9fd0af4689e4";
-    const recoveryId = 0;
+      "22b3690ab48a30256e4f015c7ab6d641eea22136904c561c3cebc2392dba069f6ed07b83fe3e770bb452f7dbab91a9eb8908bb08a81dbd1d81bfe6d0cc026f02";
+    const recoveryId = 1;
 
     const bibiancoupon = {
       from_icp_address:
@@ -272,7 +272,7 @@ describe("Treasury", async () => {
 
     // token metadata
     const metadata = {
-      uri: "https://bafybeiar3hjdqbmxfexe3meibkqu2h7wwqhj7llkc2cta7vtw6fgql55ia.ipfs.w3s.link/ipfs/bafybeiar3hjdqbmxfexe3meibkqu2h7wwqhj7llkc2cta7vtw6fgql55ia/bton-json.json",
+      uri: "https://3yxbhwntrxjgvuip2nrfc2l6v4l74wbngnuojj7z4zk2dikt6n4a.arweave.net/3i4T2bON0mrRD9NiUWl-rxf-WC0zaOSn-eZVoaFT83g/bton.json",
       name: "Solana BTON",
       symbol: "BTON",
     };

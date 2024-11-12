@@ -8,22 +8,22 @@ pub mod utils;
 pub mod instructions;
 use instructions::*;
 
-declare_id!("8eaZqKD2CDYakH5qW1kPT7HsbeWyn2f7AXbTWZYLSsSN");
+declare_id!("Cb3CDEGAzbSciL6mb5NAc4pn45k6QyAae9S4agyfEJ2F");
 
 const SEED: &[u8] = "bton_mint_authority".as_bytes();
 
 const ADMIN_PUBKEY: Pubkey = pubkey!("aeWza7erizbMA3zNKW91ppftf8Rz8nyApRcumSSqebc");
-const TREASURY: Pubkey = pubkey!("GS2LjC425VRixxyXChXEKNaqDgLMoT1KjScoYdTuanSH");
+const TREASURY: Pubkey = pubkey!("BCX4yK2kDsbTeUnwDHburaDF6DdLDkgDgsu4PvEhLxsL");
 
 #[program]
 pub mod solana_treasury {
     use super::*;
 
     const ETH_PUBKEY: [u8; 64] = [
-        14, 143, 175, 40, 31, 55, 231, 42, 152, 111, 124, 242, 57, 152, 3, 224, 251, 229, 241, 230,
-        253, 73, 7, 18, 255, 183, 35, 236, 111, 38, 236, 173, 148, 139, 41, 159, 9, 195, 230, 154,
-        174, 148, 242, 252, 113, 225, 251, 143, 62, 254, 176, 213, 138, 27, 196, 137, 41, 13, 72,
-        134, 1, 206, 207, 72,
+        56, 72, 255, 236, 218, 141, 204, 182, 150, 13, 183, 212, 44, 74, 204, 172, 15, 166, 223,
+        196, 65, 159, 30, 239, 123, 89, 153, 30, 151, 148, 152, 247, 54, 59, 187, 137, 4, 21, 149,
+        174, 102, 134, 127, 186, 150, 183, 54, 4, 127, 45, 221, 227, 216, 217, 96, 56, 248, 250,
+        78, 117, 120, 188, 233, 196,
     ];
 
     pub fn deposit(ctx: Context<Deposit>, data: DepositData) -> Result<()> {

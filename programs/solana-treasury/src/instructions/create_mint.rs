@@ -23,8 +23,7 @@ pub struct CreateMint<'info> {
         bump,
         payer = admin,
         mint::decimals = 3,
-        mint::authority = bton_token_mint,
-        mint::freeze_authority = bton_token_mint,
+        mint::authority = bton_token_mint
     )]
     pub bton_token_mint: Account<'info, Mint>,
 
